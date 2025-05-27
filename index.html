@@ -1,0 +1,787 @@
+    <!DOCTYPE html>
+    <html lang="en"> 
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ijab M Rahman - Mechanical Design Engineer</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #f8fafc; /* Tailwind gray-50 */
+                color: #1f2937; /* Tailwind gray-800 */
+            }
+            
+            .section-title {
+                @apply text-3xl md:text-4xl font-bold mb-10 text-sky-800 text-center md:text-left;
+            }
+
+            .nav-link {
+                @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-sky-100 hover:text-sky-700 transition-colors duration-300;
+            }
+            .nav-link.active {
+                @apply bg-sky-600 text-white hover:bg-sky-700;
+            }
+            
+            .project-card {
+                @apply bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2;
+            }
+
+            .project-3d-canvas {
+                width: 100%;
+                height: 300px; 
+                border-radius: 0.5rem;
+                background-color: #e0f2fe; 
+                cursor: grab;
+                display: block; 
+            }
+            .skill-tag {
+                @apply bg-sky-100 text-sky-800 px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 hover:bg-sky-200 hover:scale-105;
+            }
+            
+            .btn-base {
+                 @apply font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:-translate-y-1;
+            }
+            .btn-primary { 
+                @apply btn-base bg-sky-600 hover:bg-sky-700 text-white;
+            }
+
+            .btn-solid {
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                display: inline-block; 
+                font-weight: 700; 
+                padding-top: 0.75rem; 
+                padding-bottom: 0.75rem; 
+                padding-left: 1.5rem;   
+                padding-right: 1.5rem;  
+                border-radius: 0.5rem; 
+                color: white;      
+                background-color: #2563EB; 
+                border: 1px solid #1D4ED8; 
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); 
+                transition-property: background-color, border-color, box-shadow, transform; 
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); 
+                transition-duration: 300ms; 
+                transform: translateY(0px); 
+                cursor: pointer;
+                text-align: center;
+            }
+
+            .btn-solid:hover {
+                background-color: #1D4ED8; 
+                border-color: #1E40AF;     
+                box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); 
+                transform: translateY(-0.25rem); 
+            }
+
+
+            .form-input {
+                @apply w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-300;
+            }
+
+            /* Hero section styling with restored gradient and new canvas layer */
+            #home {
+                background: linear-gradient(-45deg, #0284c7, #06b6d4, #3b82f6, #0ea5e9); /* Restored gradient */
+                background-size: 400% 400%;
+                animation: gradientBG 15s ease infinite;
+                position: relative; /* For positioning the canvas and content */
+                overflow: hidden; 
+            }
+            /* Canvas for interactive 3D elements on top of the gradient */
+            #interactive-hero-canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1; /* Above gradient, below text */
+            }
+            /* Container for hero text, to be above interactive canvas */
+            .hero-content-container { 
+                position: relative;
+                z-index: 2; /* Ensures text is on top */
+            }
+
+            @keyframes gradientBG {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            .hero-content { 
+                animation: float 6s ease-in-out infinite;
+            }
+
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-15px); } 
+                100% { transform: translateY(0px); }
+            }
+            
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            }
+
+            .timeline-item {
+                @apply relative border-l-2 border-sky-200 pl-10 pb-10; 
+            }
+            .timeline-item:last-child {
+                @apply pb-0; 
+            }
+            .timeline-dot {
+                @apply absolute -left-[11px] top-1 w-5 h-5 bg-sky-600 rounded-full border-4 border-white;
+            }
+
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: #f1f1f1; }
+            ::-webkit-scrollbar-thumb { background: #075985; border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+        </style>
+    </head>
+    <body class="antialiased">
+
+        <nav id="navbar" class="bg-white/80 backdrop-blur-md shadow-sm fixed w-full top-0 z-50 transition-all duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <a href="#home" class="text-2xl font-bold text-sky-700">Ijab M Rahman</a>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#home" class="nav-link active">Home</a>
+                            <a href="#about" class="nav-link">About</a>
+                            <a href="#projects" class="nav-link">Projects</a>
+                            <a href="#experience" class="nav-link">Experience</a>
+                            <a href="#skills" class="nav-link">Skills</a>
+                            <a href="#contact" class="nav-link">Contact</a>
+                        </div>
+                    </div>
+                    <div class="-mr-2 flex md:hidden">
+                        <button id="mobile-menu-button" type="button" class="bg-sky-100 inline-flex items-center justify-center p-2 rounded-md text-sky-700 hover:text-sky-800 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-controls="mobile-menu" aria-expanded="false">
+                            <span class="sr-only">Open main menu</span>
+                            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                            <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="md:hidden hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="#home" class="nav-link block">Home</a>
+                    <a href="#about" class="nav-link block">About</a>
+                    <a href="#projects" class="nav-link block">Projects</a>
+                    <a href="#experience" class="nav-link block">Experience</a>
+                    <a href="#skills" class="nav-link block">Skills</a>
+                    <a href="#contact" class="nav-link block">Contact</a>
+                </div>
+            </div>
+        </nav>
+
+        <section id="home" class="min-h-screen flex items-center justify-center text-white pt-16">
+            <canvas id="interactive-hero-canvas"></canvas>
+            <div class="hero-content-container text-center p-8"> 
+                <div class="hero-content" data-aos="zoom-in" data-aos-duration="1000">
+                    <img src="https://placehold.co/150x150/FFFFFF/0284C7?text=IMR" alt="Ijab M Rahman" class="w-40 h-40 md:w-48 md:h-48 rounded-full mx-auto mb-8 shadow-2xl border-4 border-white/50">
+                    <h1 class="text-5xl md:text-7xl font-extrabold mb-4 text-shadow">Ijab M Rahman</h1>
+                    <p class="text-xl md:text-2xl mb-8 font-light">Mechanical Design Engineer</p>
+                    <p class="max-w-2xl mx-auto text-lg md:text-xl mb-10 leading-relaxed">
+                        Passionate about innovative design and product development. Specializing in SolidWorks, advanced simulation, and cross-functional collaborations to bring concepts to life and solve complex engineering challenges.
+                    </p>
+                    <a href="#projects" class="btn-primary text-lg inline-flex items-center">
+                        View My Work
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2 h-5 w-5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="m8 12 4 4 4-4"/></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-24 bg-white">
+            <div class="max-w-5xl mx-auto px-6 lg:px-8">
+                <h2 class="section-title" data-aos="fade-right">About Me</h2>
+                <div class="grid md:grid-cols-3 gap-10 items-center">
+                    <div class="md:col-span-1" data-aos="fade-up" data-aos-delay="100">
+                        <img src="https://placehold.co/400x400/E0F2FE/0284C7?text=Profile" alt="Ijab M Rahman Professional Photo" class="rounded-xl shadow-xl w-full">
+                    </div>
+                    <div class="md:col-span-2 text-lg text-gray-700 space-y-4 leading-relaxed" data-aos="fade-up" data-aos-delay="200">
+                        <p>A dedicated and creative Mechanical Engineer with a Bachelor of Technology (First Class) from TKM College of Engineering, Kerala. My journey in engineering is fueled by a passion for creating solutions that are not only efficient but also user-centric and innovative.</p>
+                        <p>With a strong foundation in mechanical design, product development, and expertise in tools like SolidWorks and Ansys Fluent, I have successfully contributed to various projects, from conceptualization to simulation and analysis. I have a keen interest in the future of electric vehicle technology and sustainable engineering practices.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-24 bg-sky-50">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <h2 class="section-title" data-aos="fade-right">Projects</h2>
+                <div class="grid md:grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="project-card" data-aos="fade-up" data-aos-duration="500">
+                        <h3 class="text-2xl font-semibold mb-3 text-sky-700">Universal Motorcycle Central Stand</h3>
+                        <canvas class="project-3d-canvas mb-4" id="project1-canvas"></canvas>
+                        <div class="space-y-2 text-gray-700">
+                            <p><strong class="font-semibold text-sky-600">What:</strong> An innovative, user-friendly central stand for motorcycles based on a Slider-Crank Mechanism, designed to reduce deployment effort. Patent filed (App No: 202541004656 A, Journal No: 07/2025, Dated: 14/02/2025).</p>
+                            <p><strong class="font-semibold text-sky-600">How:</strong> Developed using SolidWorks for design. Conducted stress analysis using SOLIDWORKS structural simulation and validated with hand calculations.</p>
+                            <p><strong class="font-semibold text-sky-600">Why:</strong> To enhance the usability of motorcycle stands, making them more accessible and easier to operate for a wider range of users, thereby improving the overall user experience.</p>
+                        </div>
+                    </div>
+                    <div class="project-card" data-aos="fade-up" data-aos-duration="500" data-aos-delay="100">
+                        <h3 class="text-2xl font-semibold mb-3 text-sky-700">EV Powertrain Efficiency Optimization</h3>
+                        <canvas class="project-3d-canvas mb-4" id="project2-canvas"></canvas>
+                        <div class="space-y-2 text-gray-700">
+                            <p><strong class="font-semibold text-sky-600">What:</strong> A mathematical model to simulate and optimize the efficiency of an electric vehicle's power system.</p>
+                            <p><strong class="font-semibold text-sky-600">How:</strong> Developed in Matlab to analyze and improve energy consumption (Wh/Km).</p>
+                            <p><strong class="font-semibold text-sky-600">Why:</strong> To contribute to the advancement of sustainable transportation by enhancing the performance, reducing energy consumption, and extending the range of electric vehicles.</p>
+                        </div>
+                    </div>
+                    <div class="project-card" data-aos="fade-up" data-aos-duration="500" data-aos-delay="200">
+                        <h3 class="text-2xl font-semibold mb-3 text-sky-700">Electronics Cooling (Conjugate Heat Transfer)</h3>
+                        <canvas class="project-3d-canvas mb-4" id="project3-canvas"></canvas>
+                        <div class="space-y-2 text-gray-700">
+                            <p><strong class="font-semibold text-sky-600">What:</strong> Analysis of simultaneous heat transfer in solid and fluid domains for cooling multiple electronic chips.</p>
+                            <p><strong class="font-semibold text-sky-600">How:</strong> Utilized Ansys Fluent to simulate and analyze heat transfer at the solid-fluid interface.</p>
+                            <p><strong class="font-semibold text-sky-600">Why:</strong> To develop more effective and reliable cooling solutions for electronic components, ensuring their optimal performance, longevity, and preventing overheating.</p>
+                        </div>
+                    </div>
+                    <div class="project-card" data-aos="fade-up" data-aos-duration="500" data-aos-delay="300">
+                        <h3 class="text-2xl font-semibold mb-3 text-sky-700">Battery Thermal Management for EVs</h3>
+                        <canvas class="project-3d-canvas mb-4" id="project4-canvas"></canvas>
+                        <div class="space-y-2 text-gray-700">
+                            <p><strong class="font-semibold text-sky-600">What:</strong> Analysis of nanofluid thermal behavior for maintaining temperature uniformity and reducing maximum battery temperature in EVs.</p>
+                            <p><strong class="font-semibold text-sky-600">How:</strong> Used Ansys Fluent to analyze nanofluid thermal properties in a thermal network design.</p>
+                            <p><strong class="font-semibold text-sky-600">Why:</strong> To improve the safety, performance, and lifespan of electric vehicle batteries through advanced thermal management, preventing degradation and ensuring operational stability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="py-24 bg-white">
+            <div class="max-w-5xl mx-auto px-6 lg:px-8">
+                <h2 class="section-title" data-aos="fade-right">Experience</h2>
+                <div class="space-y-12" data-aos="fade-up"> 
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h3 class="text-xl font-semibold text-sky-700 mb-1">Mechanical Design - Market Research Executive</h3>
+                        <p class="text-gray-600 mb-1">Conceptia Software Technologies, Kochi, Kerala</p>
+                        <p class="text-sm text-gray-500 mb-2">Sep 2024 - April 2025</p>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1">
+                            <li>Achieved a 166% increase in startup program enrollments (6 in 2024 to 16 in Q1 2025).</li>
+                            <li>Received 'Great Job' award (Dec 2024) for contributions to SOLIDWORKS Startup Program.</li>
+                            <li>Conducted market research for design for manufacturability; provided SOLIDWORKS technical support.</li>
+                            <li>Assisted in pre-sales/post-sales technical consultations and CAD workflow optimization.</li>
+                            <li>Analyzed industry trends for enhancements in design processes, CAD automation, and PLM solutions.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h3 class="text-xl font-semibold text-sky-700 mb-1">Research Intern - Product Development Engineer (CAE Engineer)</h3>
+                        <p class="text-gray-600 mb-1">Simulation Lab</p>
+                        <p class="text-sm text-gray-500 mb-2">April 2024 - June 2024</p>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1">
+                            <li>Analyzed thermal behavior of nanofluids for EV Battery Thermal Management Systems (BTMS) using Ansys Fluent.</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h3 class="text-xl font-semibold text-sky-700 mb-1">Internship Trainee</h3>
+                        <p class="text-gray-600 mb-1">Kochi Metro Rail Limited</p>
+                        <p class="text-sm text-gray-500 mb-2">Jan 2024</p>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1">
+                            <li>Rolling Stock Dept: Learned inspection of components for operational efficiency and safety.</li>
+                            <li>Participated in safety and compliance training (ISO 9001 standards).</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item"> 
+                        <div class="timeline-dot"></div>
+                        <h3 class="text-xl font-semibold text-sky-700 mb-1">Internship Trainee</h3>
+                        <p class="text-gray-600 mb-1">Cochin Shipyard Limited</p>
+                        <p class="text-sm text-gray-500 mb-2">Sep 2023</p>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1">
+                            <li>Ship Building Division: Maintenance and inspection of ship components.</li>
+                            <li>Assisted in inspecting machined parts for dimensional accuracy and surface finish.</li>
+                            <li>Used CNC and conventional machining processes for marine components.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="py-24 bg-sky-50">
+            <div class="max-w-5xl mx-auto px-6 lg:px-8">
+                <h2 class="section-title" data-aos="fade-right">Skills & Expertise</h2>
+                <div data-aos="fade-up">
+                    <h3 class="text-xl font-semibold text-sky-700 mb-4">Technical Skills</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="skill-tag">SolidWorks</span><span class="skill-tag">Ansys Fluent</span><span class="skill-tag">AutoCAD</span><span class="skill-tag">Autodesk Fusion 360</span><span class="skill-tag">Mechanical Design</span><span class="skill-tag">GD&T</span><span class="skill-tag">CNC Machining</span><span class="skill-tag">FEA Simulation</span><span class="skill-tag">Adobe Photoshop</span><span class="skill-tag">Illustrator</span><span class="skill-tag">Blender</span><span class="skill-tag">MS Office Suite</span><span class="skill-tag">LaTeX</span>
+                    </div>
+                </div>
+                <div class="mt-10" data-aos="fade-up" data-aos-delay="100">
+                    <h3 class="text-xl font-semibold text-sky-700 mb-4">Soft Skills</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="skill-tag">Leadership</span><span class="skill-tag">Collaboration</span><span class="skill-tag">Creative Thinking</span><span class="skill-tag">Problem-Solving</span><span class="skill-tag">Time Management</span><span class="skill-tag">Communication</span><span class="skill-tag">Negotiation</span><span class="skill-tag">Adaptability</span><span class="skill-tag">Team Work</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-24 bg-white">
+            <div class="max-w-5xl mx-auto px-6 lg:px-8">
+                <h2 class="section-title" data-aos="fade-right">Get In Touch</h2>
+                <div class="grid md:grid-cols-2 gap-10 bg-gray-50 p-6 md:p-8 rounded-xl shadow-inner">
+                    <div data-aos="fade-up" data-aos-delay="100">
+                        <h3 class="text-2xl font-bold text-sky-800 mb-4">Let's Connect</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious team. Feel free to reach out!</p>
+                        <div class="space-y-4">
+                            <a href="tel:+971561236172" class="flex items-center text-gray-700 hover:text-sky-600 transition-colors group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 text-sky-500 group-hover:scale-110 transition-transform"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                <span>+971 56 123 6172</span>
+                            </a>
+                            <a href="mailto:ijabmrahman@gmail.com" class="flex items-center text-gray-700 hover:text-sky-600 transition-colors group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 text-sky-500 group-hover:scale-110 transition-transform"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                <span>ijabmrahman@gmail.com</span>
+                            </a>
+                            <a href="https://www.linkedin.com/in/ijabmrahman" target="_blank" rel="noopener noreferrer" class="flex items-center text-gray-700 hover:text-sky-600 transition-colors group">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 text-sky-500 group-hover:scale-110 transition-transform"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                                <span>linkedin.com/in/ijabmrahman</span>
+                            </a>
+                        </div>
+                    </div>
+                    <form id="contact-form" 
+                          action="https://formspree.io/f/xvgaepjz" 
+                          method="POST" 
+                          class="space-y-6" 
+                          data-aos="fade-up" 
+                          data-aos-delay="200">
+                        <div>
+                            <label for="contact-name" class="sr-only">Full Name</label>
+                            <input type="text" name="name" id="contact-name" required class="form-input" placeholder="Your Name">
+                        </div>
+                        <div>
+                            <label for="contact-email" class="sr-only">Email Address</label>
+                            <input type="email" name="email" id="contact-email" required class="form-input" placeholder="Your Email Address">
+                        </div>
+                        <div>
+                            <label for="contact-message" class="sr-only">Message</label>
+                            <textarea name="message" id="contact-message" rows="5" required class="form-input" placeholder="Your Message..."></textarea>
+                        </div>
+                        <div class="text-right"> 
+                            <button type="submit" class="btn-solid text-lg"> Send Message 
+                            </button>
+                        </div>
+                        <div id="form-status" class="mt-4 text-center"></div> 
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-sky-800 text-sky-100 py-6 text-center">
+            <p>&copy; <span id="currentYear"></span> Ijab M Rahman. All rights reserved.</p>
+            <p class="text-sm opacity-70">Designed with Passion & Precision</p>
+        </footer>
+
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script>
+            AOS.init({
+                duration: 800, 
+                once: true, 
+                offset: 50, 
+            });
+
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const svgs = menuButton.querySelectorAll('svg');
+
+            menuButton.addEventListener('click', () => {
+                const isExpanded = mobileMenu.classList.toggle('hidden');
+                menuButton.setAttribute('aria-expanded', String(!isExpanded));
+                svgs[0].classList.toggle('hidden'); 
+                svgs[0].classList.toggle('block');
+                svgs[1].classList.toggle('hidden'); 
+                svgs[1].classList.toggle('block');
+            });
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        if (mobileMenu.contains(this) && !mobileMenu.classList.contains('hidden')) {
+                             mobileMenu.classList.add('hidden');
+                             menuButton.setAttribute('aria-expanded', 'false');
+                             svgs[0].classList.remove('hidden'); 
+                             svgs[0].classList.add('block');    
+                             svgs[1].classList.add('hidden');   
+                             svgs[1].classList.remove('block'); 
+                        }
+                        
+                        const navbarHeight = document.getElementById('navbar').offsetHeight;
+                        const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = elementPosition - navbarHeight;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+
+            const sections = document.querySelectorAll('section[id]'); 
+            const navLinks = document.querySelectorAll('nav a.nav-link'); 
+            const navbar = document.getElementById('navbar');
+            
+            window.addEventListener('scroll', () => {
+                let currentId = '';
+                const scrollY = window.pageYOffset;
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - navbar.offsetHeight - 20; 
+                    const sectionHeight = section.offsetHeight;
+                    if (scrollY >= sectionTop && scrollY <= sectionTop + sectionHeight) {
+                        currentId = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === currentId) {
+                        link.classList.add('active');
+                    }
+                });
+                if (!currentId && scrollY < (sections[0] ? sections[0].offsetTop : 0) ) {
+                     const homeLink = document.querySelector('nav a.nav-link[href="#home"]');
+                     if(homeLink) homeLink.classList.add('active');
+                }
+            });
+            window.dispatchEvent(new Event('scroll')); 
+
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Updated Contact Form JavaScript for Formspree
+            const contactForm = document.getElementById('contact-form');
+            const formStatus = document.getElementById('form-status');
+
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault(); 
+
+                const formData = new FormData(contactForm);
+                const action = contactForm.getAttribute('action');
+
+                formStatus.innerHTML = '<p class="text-sky-600">Sending...</p>'; 
+
+                fetch(action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        formStatus.innerHTML = '<p class="text-green-600">Thank you! Your message has been sent successfully.</p>';
+                        contactForm.reset(); 
+                    } else {
+                        response.json().then(data => {
+                            if (Object.hasOwn(data, 'errors')) {
+                                formStatus.innerHTML = `<p class="text-red-600">${data["errors"].map(error => error["message"]).join(", ")}</p>`;
+                            } else {
+                                formStatus.innerHTML = '<p class="text-red-600">Oops! There was a problem submitting your form.</p>';
+                            }
+                        });
+                    }
+                }).catch(error => {
+                    formStatus.innerHTML = '<p class="text-red-600">Oops! There was a problem submitting your form. Please try again.</p>';
+                    console.error('Form submission error:', error);
+                }).finally(() => {
+                    setTimeout(() => { formStatus.innerHTML = ''; }, 7000);
+                });
+            });
+
+            function initThreeJSScene(canvasId, objectType) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) { console.error("Canvas not found:", canvasId); return; }
+
+                if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
+                }
+                
+                const scene = new THREE.Scene();
+                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(canvas.clientWidth || 300, canvas.clientHeight || 300); 
+                
+                const camera = new THREE.PerspectiveCamera(50, (canvas.clientWidth||300) / (canvas.clientHeight||300), 0.1, 1000);
+                camera.position.z = 5;
+
+                scene.add(new THREE.AmbientLight(0xffffff, 0.7)); 
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9); 
+                directionalLight.position.set(5, 10, 7.5);
+                scene.add(directionalLight);
+
+                let mesh;
+                const material = new THREE.MeshStandardMaterial({ roughness: 0.4, metalness: 0.2 }); 
+
+                switch (objectType) {
+                    case 'motorcycle_stand': 
+                        material.color.setHex(0x3B82F6); 
+                        const standGroup = new THREE.Group();
+                        const mainBar = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 2.2, 20), material); 
+                        mainBar.rotation.z = Math.PI / 2;
+                        standGroup.add(mainBar);
+                        const legGeo = new THREE.CylinderGeometry(0.15, 0.15, 1.6, 16);
+                        const leg1 = new THREE.Mesh(legGeo, material);
+                        leg1.position.set(-0.9, -0.6, 0); leg1.rotation.x = Math.PI / 3.5;
+                        standGroup.add(leg1);
+                        const leg2 = new THREE.Mesh(legGeo, material);
+                        leg2.position.set(0.9, -0.6, 0); leg2.rotation.x = Math.PI / 3.5;
+                        standGroup.add(leg2);
+                        mesh = standGroup;
+                        mesh.rotation.x = -0.3; mesh.rotation.y = 0.2; 
+                        break;
+                    case 'ev_powertrain': 
+                        material.color.setHex(0x10B981); 
+                        mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(1.1, 0.35, 120, 18), material); 
+                        break;
+                    case 'electronics_cooling': 
+                        const pcbMat = new THREE.MeshStandardMaterial({ color: 0xF59E0B, roughness: 0.7, metalness: 0.1 });
+                        const chipMat = new THREE.MeshStandardMaterial({ color: 0x4B5563, roughness: 0.4, metalness: 0.4 });
+                        mesh = new THREE.Group(); 
+                        
+                        const pcb = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.25, 1.8), pcbMat);
+                        mesh.add(pcb); 
+
+                        const chip1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.6), chipMat);
+                        chip1.position.set(-0.9, 0.275, 0); 
+                        mesh.add(chip1); 
+
+                        const chip2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.6), chipMat);
+                        chip2.position.set(0.9, 0.275, 0); 
+                        mesh.add(chip2); 
+                        
+                        mesh.rotation.x = -0.2;
+                        break;
+                    case 'btms': 
+                        const batteryMat = new THREE.MeshStandardMaterial({ color: 0xEF4444, transparent: true, opacity: 0.75 });
+                        const particleMat = new THREE.MeshStandardMaterial({color: 0x38BDF8, roughness: 0.1, metalness: 0.3}); 
+                        mesh = new THREE.Group(); 
+                        mesh.add(new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.1, 1.6), batteryMat));
+                        for(let i=0; i<20; i++) { 
+                            const particle = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 10), particleMat); 
+                            particle.position.set((Math.random()-0.5)*2, (Math.random()-0.5)*0.9, (Math.random()-0.5)*1.4);
+                            mesh.add(particle); 
+                        }
+                        mesh.rotation.y = 0.3;
+                        break;
+                }
+                scene.add(mesh); 
+
+                let isDragging = false, previousMousePosition = { x: 0, y: 0 };
+                const interactionSensitivity = 0.007; 
+
+                const onPointerDown = (event) => {
+                    isDragging = true;
+                    canvas.style.cursor = 'grabbing';
+                    previousMousePosition.x = event.clientX || event.touches[0].clientX;
+                    previousMousePosition.y = event.clientY || event.touches[0].clientY;
+                };
+                const onPointerUp = () => {
+                    isDragging = false;
+                    canvas.style.cursor = 'grab';
+                };
+                const onPointerMove = (event) => {
+                    if (!isDragging) return;
+                    const currentX = event.clientX || event.touches[0].clientX;
+                    const currentY = event.clientY || event.touches[0].clientY;
+                    const deltaX = currentX - previousMousePosition.x;
+                    const deltaY = currentY - previousMousePosition.y;
+                    mesh.rotation.y += deltaX * interactionSensitivity;
+                    mesh.rotation.x += deltaY * interactionSensitivity;
+                    previousMousePosition.x = currentX;
+                    previousMousePosition.y = currentY;
+                    if (event.touches) event.preventDefault(); 
+                };
+                const onWheel = (event) => {
+                    event.preventDefault();
+                    camera.position.z = Math.max(2.5, Math.min(12, camera.position.z + event.deltaY * 0.008)); 
+                };
+
+                canvas.addEventListener('mousedown', onPointerDown);
+                canvas.addEventListener('mouseup', onPointerUp);
+                canvas.addEventListener('mouseleave', onPointerUp); 
+                canvas.addEventListener('mousemove', onPointerMove);
+                canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+                canvas.addEventListener('touchend', onPointerUp);
+                canvas.addEventListener('touchmove', onPointerMove, { passive: false });
+                canvas.addEventListener('wheel', onWheel, { passive: false });
+                
+                const resizeObserver = new ResizeObserver(entries => {
+                    if (!entries || !entries.length) return;
+                    const entry = entries[0];
+                    const { width, height } = entry.contentRect;
+                    
+                    if (width > 0 && height > 0) { 
+                        camera.aspect = width / height;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize(width, height);
+                    }
+                });
+                resizeObserver.observe(canvas);
+                if (canvas.clientWidth > 0 && canvas.clientHeight > 0) {
+                     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                } else {
+                    setTimeout(() => {
+                         if (canvas.clientWidth > 0 && canvas.clientHeight > 0) {
+                            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                         }
+                    }, 100);
+                }
+
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    if (!isDragging) { mesh.rotation.y += 0.002; mesh.rotation.x += 0.0005; } 
+                    renderer.render(scene, camera);
+                }
+                animate();
+            }
+
+            // Hero Background Interactive Elements
+            function initInteractiveHeroElements() {
+                const canvas = document.getElementById('interactive-hero-canvas');
+                if (!canvas) return;
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 50; 
+
+                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true }); 
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0x000000, 0); 
+
+                const elements = [];
+                const elementCount = 7; 
+                const spread = 80; 
+                const boundary = {
+                    x: spread * 0.6, 
+                    y: spread * 0.4,
+                    z: spread * 0.6 
+                };
+
+
+                const geometries = [
+                    new THREE.IcosahedronGeometry(2.5, 0), 
+                    new THREE.TorusKnotGeometry(2, 0.6, 60, 10), 
+                    new THREE.BoxGeometry(3, 3, 3),
+                    new THREE.OctahedronGeometry(2.8, 0),
+                    new THREE.DodecahedronGeometry(2.7, 0)
+                ];
+
+                for (let i = 0; i < elementCount; i++) {
+                    const geometry = geometries[i % geometries.length];
+                    const material = new THREE.MeshStandardMaterial({
+                        color: 0xffffff, 
+                        wireframe: true,
+                        transparent: true,
+                        opacity: 0.2 + Math.random() * 0.25 
+                    });
+                    const element = new THREE.Mesh(geometry, material);
+
+                    element.position.x = (Math.random() - 0.5) * spread;
+                    element.position.y = (Math.random() - 0.5) * spread * 0.6; 
+                    element.position.z = (Math.random() - 0.5) * spread - 15; 
+
+                    element.rotation.x = Math.random() * Math.PI;
+                    element.rotation.y = Math.random() * Math.PI;
+                    
+                    element.userData.baseRotationSpeed = new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.003,
+                        (Math.random() - 0.5) * 0.003,
+                        (Math.random() - 0.5) * 0.003
+                    );
+                    element.userData.baseOpacity = element.material.opacity;
+                    element.userData.velocity = new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.03,
+                        (Math.random() - 0.5) * 0.03,
+                        (Math.random() - 0.5) * 0.03
+                    );
+
+
+                    elements.push(element);
+                    scene.add(element);
+                }
+                
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
+                scene.add(ambientLight);
+                const pointLight = new THREE.PointLight(0xffffff, 0.7, 250); 
+                pointLight.position.set(0, 30, 60);
+                scene.add(pointLight);
+
+                const mouse = new THREE.Vector2(-1000,-1000); 
+
+                function onHeroMouseMove(event) {
+                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                }
+                document.getElementById('home').addEventListener('mousemove', onHeroMouseMove, false);
+
+
+                function animateInteractiveHeroElements() {
+                    requestAnimationFrame(animateInteractiveHeroElements);
+
+                    elements.forEach(element => {
+                        element.position.add(element.userData.velocity);
+
+                        if (Math.abs(element.position.x) > boundary.x) element.userData.velocity.x *= -1;
+                        if (Math.abs(element.position.y) > boundary.y) element.userData.velocity.y *= -1;
+                        if (element.position.z > camera.position.z || element.position.z < -boundary.z - 20) { 
+                           element.position.z = -boundary.z -19; 
+                        }
+
+
+                        element.rotation.x += element.userData.baseRotationSpeed.x;
+                        element.rotation.y += element.userData.baseRotationSpeed.y;
+                        element.rotation.z += element.userData.baseRotationSpeed.z;
+
+                        const elementScreenPos = element.position.clone().project(camera);
+                        const distanceToMouse = mouse.distanceTo(new THREE.Vector2(elementScreenPos.x, elementScreenPos.y));
+                        const maxEffectDistance = 0.4; 
+                        const influence = Math.max(0, 1 - distanceToMouse / maxEffectDistance);
+
+                        const lookAtPoint = new THREE.Vector3(mouse.x * 15, mouse.y * 15, element.position.z); 
+                        const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(
+                            new THREE.Matrix4().lookAt(element.position, lookAtPoint, element.up)
+                        );
+                        element.quaternion.slerp(targetQuaternion, 0.03 * (1 + influence)); 
+
+                        element.material.opacity = element.userData.baseOpacity + influence * 0.5;
+                        element.material.opacity = Math.max(0.1, Math.min(0.9, element.material.opacity)); 
+                    });
+
+                    renderer.render(scene, camera);
+                }
+                animateInteractiveHeroElements();
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+
+            document.addEventListener('DOMContentLoaded', () => {
+                initThreeJSScene('project1-canvas', 'motorcycle_stand');
+                initThreeJSScene('project2-canvas', 'ev_powertrain');
+                initThreeJSScene('project3-canvas', 'electronics_cooling');
+                initThreeJSScene('project4-canvas', 'btms');
+                initInteractiveHeroElements(); 
+            });
+
+        </script>
+    </body>
+    </html>
