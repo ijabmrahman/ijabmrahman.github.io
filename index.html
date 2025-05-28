@@ -627,7 +627,7 @@
         // Set some reasonable zoom limits
         camera.position.z = Math.max(2.5, Math.min(25, newZ)); 
     };
-    
+
     canvas.addEventListener('mousedown', onPointerDown);
     canvas.addEventListener('mouseup', onPointerUp);
     canvas.addEventListener('mouseleave', onPointerUp);
@@ -779,7 +779,7 @@
                 initThreeJSScene('project1-canvas', 'assets/3dmodels/stand.glb', { cameraZ: 3});
                 initThreeJSScene('project2-canvas', 'ev_powertrain');
                 initThreeJSScene('project3-canvas', 'electronics_cooling');
-                initThreeJSScene('project4-canvas', 'btms');
+                initThreeJSScene('project4-canvas', 'assets/3dmodels/nanofluids.glb', { cameraZ: 3});
                 initInteractiveHeroElements(); 
             });
 
